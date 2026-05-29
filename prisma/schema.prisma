@@ -1,0 +1,91 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  profile      Profile?
+  subscription Subscription?
+}
+
+model Profile {
+  id            String        @id @default(uuid())
+  userId        String        @unique
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  age           Int
+  gender        String
+  weight        Float // in kg
+  height        Float // in cm
+  goal          String // Strength, Fat Loss, Muscle Building, Cardio, Yoga, HIIT, CrossFit, Home Workout
+  currentStreak Int           @default(0)
+  xp            Int           @default(0)
+  workoutLogs   UserWorkout[]
+  nutritionLogs NutritionLog[]
+  badges        Badge[]
+}
+
+model Workout {
+  id          String   @id @default(uuid())
+  title       String
+  duration    Int // in minutes
+  calories    Int
+  difficulty  String // Beginner, Intermediate, Advanced
+  category    String // Strength, Fat Loss, Muscle Building, Cardio, Yoga, HIIT, CrossFit, Home Workout
+  equipment   String // None, Dumbbells, Barbells, Full Gym
+  exercises   Json // List of exercises with name, reps/sets, description
+  createdAt   DateTime @default(now())
+}
+
+model UserWorkout {
+  id             String   @id @default(uuid())
+  profileId      String
+  profile        Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  workoutId      String
+  title          String
+  duration       Int
+  caloriesBurned Int
+  status         String // COMPLETED, SKIPPED, IN_PROGRESS
+  date           DateTime @default(now())
+}
+
+model NutritionLog {
+  id        String   @id @default(uuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  calories  Int
+  protein   Int // in grams
+  carbs     Int // in grams
+  fat       Int // in grams
+  water     Int // in ml
+}
+
+model Badge {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  icon        String
+  description String
+  unlockedAt  DateTime @default(now())
+}
+
+model Subscription {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeId         String?  @unique
+  plan             String // Basic, Pro, Elite
+  status           String // ACTIVE, CANCELED, EXPIRED
+  currentPeriodEnd DateTime
+}
