@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "FitSpark Pro",
-    "slug": "fitspark-pro",
+    "slug": "fit-spark-pro",
+    "owner": "sakthi_03",
     "version": "1.0.0",
     "sdkVersion": "56.0.0",
     "platforms": [
